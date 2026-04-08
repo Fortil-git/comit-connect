@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
@@ -7,21 +8,35 @@ import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'comit-connect-secret-poc';
+const DIST_DIR = path.join(__dirname, '../../dist');
+
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:8080',
+  origin: (origin, callback) => {
+    if (!origin || origin === FRONTEND_URL) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));
 
 // Session
 app.use(session({
-  secret: 'comit-connect-secret-poc',
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24h
   },
@@ -29,6 +44,12 @@ app.use(session({
 
 // Routes API
 app.use('/api', routes);
+
+// Static frontend
+app.use(express.static(DIST_DIR));
+app.get('/*', (_req, res) => {
+  res.sendFile(path.join(DIST_DIR, 'index.html'));
+});
 
 // Health check
 app.get('/health', (_req, res) => {

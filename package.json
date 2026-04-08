@@ -9,6 +9,8 @@
     "dev:all": "concurrently -n front,back -c cyan,green \"npm run dev\" \"npm run dev:server\"",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:all": "cd server && npm install && npm run build && cd .. && npm run build",
+    "start:all": "cd server && npm start",
     "lint": "eslint .",
     "preview": "vite preview"
   },
