@@ -123,6 +123,14 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .animate-fade-in {
     animation: fade-in 0.5s ease-out forwards;
   }
@@ -137,4 +145,147 @@ All colors MUST be HSL.
       transform: translateY(0);
     }
   }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite;
+  }
+
+    /* No per-page gradient helpers; background is managed by CSS variables and Tailwind classes. */
+  .dashboard-bg {
+    /* Gradient from white -> orange (#f8a73e63), with rgba fallback for older browsers */
+    background: linear-gradient(135deg, #ffffff 0%, rgba(248,167,62,0.39) 100%);
+    background: linear-gradient(135deg, #ffffff 65%, #f8a73e63 100%);
+  }
+
+  /* Dark mode tweak: keep a subtle gradient but use the dark background as end color */
+  .dark .dashboard-bg {
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(248,167,62,0.14) 100%);
+  }
+}
+
+
+.logoBG {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    filter: blur(4px);
+    opacity: 0.2;
+    width: 500px;
+    animation: logoBG .5s linear forwards;
+    animation: move 15s ease-in-out infinite alternate;
+    z-index: -1;
+}
+
+@keyframes logoBG {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 0.2;
+  }
+}
+
+@keyframes move {
+  from {
+    transform: translateX(0);
+  } to {
+    transform: translateX(-100px);
+  }
+}
+
+.colorBG {
+    /* padding-top: 25px; */
+    border-top-right-radius: 100%;
+    /* border-top-left-radius: 100%; */
+    background: linear-gradient(135deg, rgba(186, 232, 232, 0.05) 51%, rgba(230, 199, 177, 1) 100%);
+    border-top: solid 2px #bae8e83d;
+  }
+
+  .colorBGw {
+    border-top-right-radius: 100%;
+    border-top: solid 3px #bae8e83d;
+    animation: opacity 1s ease-in forwards;
+  }
+
+  .gradientBg {
+    border-bottom-right-radius: 100%;
+    width: 50vw;
+    background: linear-gradient(135deg, rgba(186, 232, 232, 0.05) 51%, rgba(230, 199, 177, 1) 100%);
+  }
+
+  .borderActions {
+    border: solid 1px #f9dbc3;
+    border-radius: 20px;
+    background: #f9fcfc99;
+  }
+
+  @keyframes opacity {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .noBG {
+    background: transparent;
+    border: none;
+    display: none ;
+  }
+
+/* Styles pour l'éditeur WYSIWYG React Quill */
+.rich-text-editor {
+  display: block !important;
+  width: 100%;
+}
+
+.rich-text-editor .ql-container {
+  min-height: 200px;
+  font-size: 14px;
+  display: block !important;
+}
+
+.rich-text-editor .ql-editor {
+  min-height: 200px;
+  display: block !important;
+}
+
+.rich-text-editor .ql-toolbar {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  background: hsl(var(--muted));
+  border-color: hsl(var(--border));
+}
+
+.rich-text-editor .ql-container {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  border-color: hsl(var(--border));
+  background: hsl(var(--background));
+}
+
+.rich-text-editor .ql-editor.ql-blank::before {
+  color: hsl(var(--muted-foreground));
+  font-style: normal;
+}
+
+.dark .rich-text-editor .ql-toolbar {
+  background: hsl(var(--muted));
+}
+
+.dark .rich-text-editor .ql-container {
+  background: hsl(var(--card));
+}
+
+.dark .rich-text-editor .ql-stroke {
+  stroke: hsl(var(--foreground));
+}
+
+.dark .rich-text-editor .ql-fill {
+  fill: hsl(var(--foreground));
+}
+
+.dark .rich-text-editor .ql-picker-label {
+  color: hsl(var(--foreground));
 }

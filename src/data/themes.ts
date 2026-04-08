@@ -1,8 +1,10 @@
 export interface SubTheme {
   id: string;
   title: string;
-  type: 'text' | 'checkbox' | 'select' | 'number';
+  type: 'text' | 'checkbox' | 'select' | 'number' | 'date' | 'counter' | 'radio';
   options?: string[];
+  placeholder?: string;
+  max?: number;
 }
 
 export interface Theme {
@@ -11,27 +13,44 @@ export interface Theme {
   description: string;
   icon: string;
   color: string;
+  important?: boolean;
   subThemes: SubTheme[];
 }
 
 export const themes: Theme[] = [
   {
     id: 'info-comite',
-    title: 'Informations du Comité',
+    title: 'Informations comité',
     description: 'Informations générales et participants',
     icon: 'info',
     color: 'from-blue-500 to-cyan-500',
+    important: true,
     subThemes: [
-      { id: 'date', title: 'Date du Comité', type: 'text' },
-      { id: 'entite', title: 'Entité FORTIL', type: 'text' },
-      { id: 'invites', title: 'Avez-vous des invités d\'une autre agence ?', type: 'select', options: ['Oui', 'Non'] },
-      { id: 'agence-invites', title: 'Si oui, quelle agence ?', type: 'text' },
-      { id: 'participants', title: 'Noms des participants au Comité', type: 'text' },
-      { id: 'femmes', title: 'Nombre de femmes présentes', type: 'number' },
-      { id: 'hommes', title: 'Nombre d\'hommes présents', type: 'number' },
+      { id: 'date', title: 'Date du Comité', type: 'date' },
+      { id: 'entite', title: 'Entité FORTIL', type: 'select', options: ['FORTIL SUD EST', 'FORTIL SUD OUEST', 'FORTIL OUEST', 'FORTIL NORD', 'FORTIL ILE DE FRANCE', 'FORTIL EST', 'FORTIL TECHNOLOGIES'] },
+      { id: 'invites', title: 'Avez-vous des invités d\'une autre agence ?', type: 'radio', options: ['Non', 'Oui'] },
+      { id: 'agence-invites', title: 'Si oui, quelle agence ?', type: 'select', options: ['Paris', 'Lyon', 'Toulouse', 'Nantes', 'Bordeaux', 'Lille', 'Strasbourg', 'Marseille', 'Rennes', 'Grenoble'] },
+      { id: 'participants', title: 'Noms des participants au Comité', type: 'text', placeholder: 'Format: NOM/Prénom (un par ligne)' },
+      { id: 'femmes', title: 'Nombre de femmes présentes', type: 'counter', max: 20 },
+      { id: 'hommes', title: 'Nombre d\'hommes présents', type: 'counter', max: 20 },
       { id: 'postes', title: 'Postes représentés dans le comité local', type: 'checkbox', options: ['DO', 'D.A.', 'B.M.', 'T.A.', 'Consultant(e)', 'Référent(e) RSE'] },
       { id: 'ordre-jour', title: 'Ordre du jour', type: 'text' },
-      { id: 'suivi-actions', title: 'Suivi des actions du précédent Comité', type: 'text' },
+    ]
+  },
+  {
+    id: 'suivi-actions',
+    title: 'Suivi actions',
+    description: 'Plan d\'action et suivi des décisions',
+    icon: 'settings',
+    color: 'from-indigo-500 to-blue-500',
+    important: true,
+    subThemes: [
+      { id: 'actions-precedent', title: 'Actions du comité précédent', type: 'text' },
+      { id: 'nouvelles-actions', title: 'Nouvelles actions décidées', type: 'text' },
+      { id: 'responsables', title: 'Responsables des actions', type: 'text' },
+      { id: 'echeances', title: 'Échéances et délais', type: 'text' },
+      { id: 'priorites', title: 'Niveau de priorité', type: 'select', options: ['Urgent', 'Important', 'Normal', 'Faible'] },
+      { id: 'statut', title: 'Statut d\'avancement', type: 'select', options: ['À faire', 'En cours', 'Terminé', 'Bloqué'] },
     ]
   },
   {

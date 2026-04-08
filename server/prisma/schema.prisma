@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// DONNÉES DE RÉFÉRENCE
+// ============================================
+
+model Agency {
+  id     String @id
+  name   String
+  city   String
+  region String
+
+  comites Comite[]
+  persons Person[]
+
+  @@map("agencies")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MEMBRE_PERMANENT
+  UTILISATEUR
+}
+
+model Person {
+  id        String   @id
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  fullName  String   @map("full_name")
+  jobTitle  String?  @map("job_title")
+  email     String?  @unique
+  password  String?
+  userRole  UserRole @default(UTILISATEUR) @map("user_role")
+  isActive  Boolean  @default(true) @map("is_active")
+
+  agencyId String? @map("agency_id")
+  agency   Agency? @relation(fields: [agencyId], references: [id])
+
+  @@map("persons")
+}
+
+// ============================================
+// THÈMES ET SOUS-THÈMES
+// ============================================
+
+model Theme {
+  id          String     @id
+  title       String
+  description String
+  icon        String
+  color       String
+  important   Boolean    @default(false)
+  order       Int        @default(0)
+
+  subThemes   SubTheme[]
+
+  @@map("themes")
+}
+
+model SubTheme {
+  id          String   @id
+  title       String
+  type        String
+  options     String[] @default([])
+  placeholder String?
+  max         Int?
+  order       Int      @default(0)
+
+  themeId     String   @map("theme_id")
+  theme       Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+  @@map("sub_themes")
+}
+
+// ============================================
+// ENTITÉS PRINCIPALES
+// ============================================
+
+model Comite {
+  id            String       @id @default(cuid())
+  date          DateTime
+  entite        String
+  participants  String       @default("")
+  agenceInvites String?      @map("agence_invites")
+  femmes        Int          @default(0)
+  hommes        Int          @default(0)
+  postes        String[]
+  ordreJour     String       @default("") @map("ordre_jour")
+  invites       String?
+  formData      Json?        @map("form_data")
+  startedAt     DateTime     @default(now()) @map("started_at")
+  endedAt       DateTime?    @map("ended_at")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  status        ComiteStatus @default(ACTIVE)
+
+  agencyId String? @map("agency_id")
+  agency   Agency? @relation(fields: [agencyId], references: [id])
+
+  activities    Activity[]
+  actions       Action[]
+  voteQuestions VoteQuestion[]
+  notes         Note[]
+  autresSujets  AutreSujet[]
+  exportHistory ExportHistory[]
+
+  @@map("comites")
+}
+
+enum ComiteStatus {
+  ACTIVE
+  CLOSED
+  FUTURE
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  comiteId    String       @map("comite_id")
+  type        ActivityType
+  timestamp   DateTime     @default(now())
+  description String
+  details     Json?
+
+  comite Comite @relation(fields: [comiteId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}
+
+enum ActivityType {
+  ACTION_CREATED
+  ACTION_UPDATED
+  ACTION_DELETED
+  VOTE_CREATED
+  VOTE_DELETED
+  SUJET_CREATED
+  SUJET_DELETED
+  NOTE_SAVED
+}
+
+model Action {
+  id                 String       @id @default(cuid())
+  themeId            String       @map("theme_id")
+  themeName          String       @map("theme_name")
+  subThemeId         String?      @map("sub_theme_id")
+  subThemeName       String?      @map("sub_theme_name")
+  title              String
+  description        String       @default("")
+  responsables       String       @default("")
+  echeance           DateTime
+  statut             ActionStatut @default(EN_COURS)
+  commentaireAbandon String?      @map("commentaire_abandon")
+  createdAt          DateTime     @default(now()) @map("created_at")
+
+  comiteId String? @map("comite_id")
+  comite   Comite? @relation(fields: [comiteId], references: [id], onDelete: SetNull)
+
+  @@map("actions")
+}
+
+enum ActionStatut {
+  EN_COURS
+  TERMINEE
+  ABANDONNEE
+}
+
+model VoteQuestion {
+  id                String   @id @default(cuid())
+  comiteId          String?  @map("comite_id")
+  themeId           String   @map("theme_id")
+  subThemeId        String   @map("sub_theme_id")
+  question          String
+  isActive          Boolean  @default(true) @map("is_active")
+  totalParticipants Int?     @map("total_participants")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  comite  Comite?      @relation(fields: [comiteId], references: [id], onDelete: SetNull)
+  options VoteOption[]
+
+  @@map("vote_questions")
+}
+
+model VoteOption {
+  id             String @id @default(cuid())
+  voteQuestionId String @map("vote_question_id")
+  text           String
+  votes          Int    @default(0)
+
+  voteQuestion VoteQuestion @relation(fields: [voteQuestionId], references: [id], onDelete: Cascade)
+
+  @@map("vote_options")
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  comiteId   String?  @map("comite_id")
+  themeId    String   @map("theme_id")
+  subThemeId String   @map("sub_theme_id")
+  content    String   @default("")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  comite      Comite?      @relation(fields: [comiteId], references: [id], onDelete: SetNull)
+  attachments Attachment[]
+
+  @@unique([comiteId, themeId, subThemeId])
+  @@map("notes")
+}
+
+model Attachment {
+  id     String @id @default(cuid())
+  noteId String @map("note_id")
+  name   String
+  size   Int
+  data   String
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
+model AutreSujet {
+  id          String   @id @default(cuid())
+  comiteId    String?  @map("comite_id")
+  titre       String
+  description String   @default("")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  comite Comite? @relation(fields: [comiteId], references: [id], onDelete: SetNull)
+
+  @@map("autres_sujets")
+}
+
+model ExportHistory {
+  id           String   @id @default(cuid())
+  comiteId     String   @map("comite_id")
+  comiteDate   DateTime @map("comite_date")
+  comiteEntite String   @map("comite_entite")
+  exportedAt   DateTime @default(now()) @map("exported_at")
+  fileName     String   @map("file_name")
+
+  comite Comite @relation(fields: [comiteId], references: [id], onDelete: Cascade)
+
+  @@map("export_history")
+}
