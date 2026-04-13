@@ -18,16 +18,16 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Middleware
+const allowedOrigins = [
+  FRONTEND_URL,
+  'https://precious-kitten-46fbff.netlify.app',
+].filter(Boolean);
 app.use(cors({
-  origin: FRONTEND_URL
-    ? (origin, callback) => {
-        if (!origin || origin === FRONTEND_URL) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      }
-    : true,
+  origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+  credentials: true,
+}));
+app.options('*', cors({
+  origin: allowedOrigins.length > 0 ? allowedOrigins : true,
   credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));
