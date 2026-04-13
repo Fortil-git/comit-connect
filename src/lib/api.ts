@@ -1,5 +1,5 @@
-const rawApiBase = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || '/api';
-const API_BASE = rawApiBase.endsWith('/api')
+export const rawApiBase = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || '/api';
+export const API_BASE = rawApiBase.endsWith('/api')
   ? rawApiBase
   : rawApiBase.replace(/\/+$/, '') + '/api';
 
