@@ -19,13 +19,15 @@ if (process.env.NODE_ENV === 'production') {
 
 // Middleware
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || origin === FRONTEND_URL) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: FRONTEND_URL
+    ? (origin, callback) => {
+        if (!origin || origin === FRONTEND_URL) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      }
+    : true,
   credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));

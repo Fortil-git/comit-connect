@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 *.local
+bun.lockb
 .env
 
 # Editor directories and files
