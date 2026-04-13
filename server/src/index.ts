@@ -49,10 +49,12 @@ app.use(session({
 app.use('/api', routes);
 
 // Static frontend
-app.use(express.static(DIST_DIR));
-app.get('/*', (_req, res) => {
-  res.sendFile(path.join(DIST_DIR, 'index.html'));
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.use(express.static(DIST_DIR));
+  app.get('/*', (_req, res) => {
+    res.sendFile(path.join(DIST_DIR, 'index.html'));
+  });
+}
 
 // Health check
 app.get('/health', (_req, res) => {
